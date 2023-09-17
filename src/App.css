@@ -1,0 +1,64 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #b7bcb7d1);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #bfac91aa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+.PromptForm {
+  display: block; 
+}
+
+.Cam {
+  left: 0;
+  right: 0;
+  top: 5;
+}
+
+
+.button {
+  display: inline-block;
+  margin: 10px;
+  border: 10px red;
+}
+
+.featureBlockWrapper {
+  display: flex;
+  flex:1;
+}
+

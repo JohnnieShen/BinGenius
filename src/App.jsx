@@ -9,12 +9,16 @@ function App() {
   const webcamRef = useRef(null);
   const [newOutput,setNewOutput] = useState("");
   const [imgSrc, setImgSrc] = useState(null);
+  const [newPrompt, setNewPrompt] = useState("Which trash bin should I choose?");
   const {speak} = useSpeechSynthesis();
+
+  const delay = ms => new Promise(res => setTimeout(res, ms));
 
   const handleReset = (event) => {
     event.preventDefault();
     setImgSrc(null)
     setNewOutput("")
+    setNewPrompt("Which trash bin should I choose?")
   }
 
   const handleSubmit = async (event)=> {
@@ -25,7 +29,7 @@ function App() {
       formdata.set('files',imgSrc)
       const result = await Axios ({
         method: "POST",
-        url: "http://10.203.127.124:5000/upload-image",
+        url: "http://10.203.127.124:5000/upload_image",
         headers: {"Content-Type": "multipart/form-data"},
         data: formdata,
       })
@@ -34,11 +38,37 @@ function App() {
       })
       setNewOutput(result.data)
       speak({text: result.data})
+      await delay(500);
+      let returnData = new FormData()
+      returnData.set('is_tf',false)
+      const returnResult = await Axios ({
+        method: "POST",
+        url: "http://10.203.127.124:5000/return_prompt",
+        headers: {"Content-Type": "multipart/form-data"},
+        data: returnData,
+      })
+      .catch(function (error) {
+        console.log(error)
+      })
+      console.log(returnResult.data)
+      setNewOutput(returnResult.data.result)
+      console.log(returnResult.data.prompt)
+      speak({text: returnResult.data.result})
+      if (returnResult.data.prompt == "Plastic") {
+        setNewPrompt(returnResult.data.prompt+" - Gray Incinerate Bin or Green Recycle Bin")
+      } else if (returnResult.data.prompt == "Glass" || returnResult.data.prompt == "Metal") {
+        setNewPrompt(returnResult.data.prompt+" - Green Recycle Bin")
+      } else if (returnResult.data.prompt == "Cardboard" || returnResult.data.prompt == "Paper") {
+        setNewPrompt(returnResult.data.prompt+" - Blue Paper Bin")
+      } else if (returnResult.data.prompt == "Trash") {
+        setNewPrompt(returnResult.data.prompt+" - Yellow Compost Bin")
+      }
     } else {
       console.error("null image")
     }
   }
   
+
   const capture = useCallback(() => {
     const imageSrc = webcamRef.current.getScreenshot();
     setImgSrc(imageSrc);
@@ -51,7 +81,7 @@ function App() {
       <header>
         <img className= "logo" src="/images/logo2.png" alt="BinGenius"></img>
       </header>
-      <h2>Which trash bin should I choose?</h2>
+      <h2>{newPrompt}</h2>
       <div className="Cam">
       <header className="Cam-header">
         <Webcam
@@ -59,12 +89,12 @@ function App() {
           muted={true} 
           width={560}
           height={420}
-          mirrored={true}
+          mirrored={false}
         />
         </header>
       </div>
       <div className="TextOutput">
-          <h2>{newOutput}</h2>
+          <h3>{newOutput}</h3>
       </div>
       <div className="PromptInput">
         <form className="PromptForm" onSubmit={handleSubmit}>
